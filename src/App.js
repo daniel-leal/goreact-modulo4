@@ -1,12 +1,12 @@
-import React, { Fragment } from "react";
+import React, { Fragment } from 'react';
 
-import "rc-slider/assets/index.css";
-import GlobalStyle from "./styles/global";
+import 'rc-slider/assets/index.css';
+import GlobalStyle from './styles/global';
 
-import Sidebar from "./components/Sidebar";
-import Player from "./components/Player";
+import Sidebar from './components/Sidebar';
+import Player from './components/Player';
 
-import { Wrapper, Container } from "./styles/components";
+import { Wrapper, Container } from './styles/components';
 
 const App = () => (
   <Fragment>
