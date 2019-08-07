@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { Creators as PlaylistActions } from "../../store/ducks/playlists";
 
-import { Container, NewPlaylist, Nav } from "./styles";
+import { Container, NewPlaylist, Nav } from './styles';
 
 import Loading from "../../components/Loading";
 
