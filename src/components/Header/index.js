@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-import { Container, Search, User } from "./styles";
+import { Container, Search, User } from './styles';
 
 const Header = () => (
   <Container>

@@ -1,5 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Slider from 'rc-slider';
+import Sound from 'react-sound';
+import PropTypes from 'prop-types';
+
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Creators as PlayerActions } from '../../store/ducks/player';
 
 import {
   Container,
@@ -19,40 +25,68 @@ import PauseIcon from '../../assets/images/pause.svg';
 import ForwardIcon from '../../assets/images/forward.svg';
 import RepeatIcon from '../../assets/images/repeat.svg';
 
-const Player = () => (
+const Player = ({
+  player,
+  play,
+  pause,
+  next,
+  prev,
+  playing,
+  position,
+  duration,
+}) => (
   <Container>
-    <Current>
-      <img
-        src="https://townsquare.media/site/812/files/2018/12/21-Savage-I-am-I-Was-Cover-Feature.jpg?w=980&q=75"
-        alt="Cover"
+    {!!player.currentSong && (
+      <Sound
+        url={player.currentSong.file}
+        playStatus={player.status}
+        onFinishedPlaying={next}
+        onPlaying={playing}
       />
-      <div>
-        <span>Times like these</span>
-        <small>Foo Fighters</small>
-      </div>
+    )}
+
+    <Current>
+      {!!player.currentSong && (
+        <Fragment>
+          <img
+            src={player.currentSong.thumbnail}
+            alt={player.currentSong.title}
+          />
+          <div>
+            <span>{player.currentSong.title}</span>
+            <small>{player.currentSong.author}</small>
+          </div>
+        </Fragment>
+      )}
     </Current>
 
     <Progress>
       <Controls>
-        <button>
+        <button type="button">
           <img src={ShuffleIcon} alt="shuffle" />
         </button>
-        <button>
+        <button type="button" onClick={prev}>
           <img src={BackwardIcon} alt="Backward" />
         </button>
-        <button>
-          <img src={PlayIcon} alt="Play" />
-        </button>
-        <button>
+        {!!player.currentSong && player.status === Sound.status.PLAYING ? (
+          <button type="button" onClick={pause}>
+            <img src={PauseIcon} alt="Pause" />
+          </button>
+        ) : (
+          <button type="button" onClick={play}>
+            <img src={PlayIcon} alt="Play" />
+          </button>
+        )}
+        <button type="button" onClick={next}>
           <img src={ForwardIcon} alt="Forward" />
         </button>
-        <button>
+        <button type="button">
           <img src={RepeatIcon} alt="Repeat" />
         </button>
       </Controls>
 
       <Time>
-        <span>1:39</span>
+        <span>{position}</span>
         <ProgressSlider>
           <Slider
             railStyle={{ background: '#404040', borderRadius: 10 }}
@@ -60,7 +94,7 @@ const Player = () => (
             handleStyle={{ border: 0 }}
           />
         </ProgressSlider>
-        <span>4:24</span>
+        <span>{duration}</span>
       </Time>
     </Progress>
 
@@ -76,4 +110,43 @@ const Player = () => (
   </Container>
 );
 
-export default Player;
+Player.propTypes = {
+  player: PropTypes.shape({
+    currentSong: PropTypes.shape({
+      file: PropTypes.string,
+      thumbnail: PropTypes.string,
+      author: PropTypes.string,
+      title: PropTypes.string,
+    }),
+    status: PropTypes.string,
+  }).isRequired,
+  play: PropTypes.func.isRequired,
+  pause: PropTypes.func.isRequired,
+  next: PropTypes.func.isRequired,
+  prev: PropTypes.func.isRequired,
+  playing: PropTypes.func.isRequired,
+  position: PropTypes.string.isRequired,
+  duration: PropTypes.string.isRequired,
+};
+
+function msToTime(duration) {
+  let seconds = parseInt((duration / 1000) % 60, 10);
+  const minutes = parseInt((duration / (1000 * 60)) % 60, 10);
+
+  seconds = seconds < 10 ? `0${seconds}` : seconds;
+
+  return `${minutes}:${seconds}`;
+}
+
+const mapStateToProps = state => ({
+  player: state.player,
+  position: msToTime(state.player.position),
+  duration: msToTime(state.player.duration),
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators(PlayerActions, dispatch);
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Player);
